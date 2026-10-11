@@ -2,7 +2,7 @@
 
 **Yi Cui · Accepted at the Economics for Machine Learning (EconML) Workshop at NeurIPS 2026**
 
-[Paper (PDF)](paper/main.pdf) · [Project page source](site/index.html) · [EconML workshop](https://econml26-workshop.github.io/)
+[Paper (PDF)](paper/main.pdf) · [Live project page](https://cymichael.github.io/instrument-validity-audit/) · [HTML source](site/index.html) · [EconML workshop](https://econml26-workshop.github.io/)
 
 This repository contains the manuscript, simulation code and saved results, and a self-contained project page. It accompanies a paper about whether a randomized encouragement experiment can reveal users who deliberately act against the encouragement—and what the experiment can and cannot tell a platform about the resulting instrumental-variables estimate.
 
@@ -84,9 +84,11 @@ python3 -m unittest -v test_audit.py
 
 See [`code/README.md`](code/README.md) for additional reproduction notes and [`code/requirements.txt`](code/requirements.txt) for dependencies.
 
-## Preview the project page
+## Project page
 
-The site is plain HTML, CSS, and JavaScript with local assets and no build step. From the repository root, start a local server:
+The live project page is published at **[cymichael.github.io/instrument-validity-audit](https://cymichael.github.io/instrument-validity-audit/)**. GitHub Pages deploys the contents of `site/` whenever a commit is pushed to `main`; the source is plain HTML, CSS, and JavaScript with local assets and no build step.
+
+To preview the page locally from the repository root:
 
 ```bash
 python3 -m http.server 8765 --bind 127.0.0.1 --directory site
