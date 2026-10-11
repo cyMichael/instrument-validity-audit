@@ -25,8 +25,8 @@ with mu_td(B) = P(T=t, Y(d) in B). Hence the two signed measures
 
 carry the defiers, and the violation functional
 
-    V(P) = max( S1_+(Y) , S0_+(Y) ),   S_+ = positive part of the
-                                       Jordan decomposition of S
+    V(P) = max( 0, S1_+(Y), S0_+(Y) ),   S_+ = positive part of the
+                                          Jordan decomposition of S
 
 is a sharp lower bound on P(T=f) (Theorem 1 in the paper).
 

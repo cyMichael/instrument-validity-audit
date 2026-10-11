@@ -15,7 +15,7 @@ The paper studies an observable population quantity, `V(P)`, built from differen
 For an outcome set `B`, write `m_dz(B) = Pr(Y ∈ B, D = d | Z = z)` and define `S₁ = m₁₀ − m₁₁` and `S₀ = m₀₁ − m₀₀`. The violation functional is
 
 $$
-V(P) = \max\left\lbrace S_{1+}(\mathcal{Y}), S_{0+}(\mathcal{Y}) \right\rbrace.
+V(P) = \max\left\lbrace 0,\; S_{1+}(\mathcal{Y}),\; S_{0+}(\mathcal{Y}) \right\rbrace.
 $$
 
 Here, `S₊` is the positive part of a signed measure and `𝒴` is the outcome space. In words, the audit looks for outcome mass that cannot be explained by the complier distributions alone. It does not observe principal-stratum membership directly.
