@@ -7,8 +7,8 @@ Run robustness.py as well for the robustness table and binary example.
     python3 run_experiments.py --figs-only  # re-render figures from results.json
 
 Outputs
-    ../paper/figs/fig_main.pdf      3 panels: bound, detection power, set width
-    ../paper/figs/fig_frontier.pdf  appendix: achievable stealth/influence pairs
+    figs/fig_main.pdf      3 panels: bound, detection power, set width
+    figs/fig_frontier.pdf  appendix: achievable stealth/influence pairs
     results.json                    main simulation results
 """
 
@@ -25,7 +25,7 @@ import numpy as np
 
 import audit as A
 
-FIGDIR = pathlib.Path(__file__).resolve().parent.parent / "paper" / "figs"
+FIGDIR = pathlib.Path(__file__).resolve().parent / "figs"
 OUT = pathlib.Path(__file__).resolve().parent / "results.json"
 
 plt.rcParams.update({

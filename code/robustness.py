@@ -19,7 +19,7 @@ the linear program and against the Richardson--Robins (2010) bound.
     python3 robustness.py            # full run (~47 s locally, 400 replications)
     python3 robustness.py --quick    # coarse smoke test
 
-Outputs: results_robustness.json and ../paper/tab_robustness.tex
+Outputs: results_robustness.json and tab_robustness.tex
 """
 
 from __future__ import annotations
@@ -37,7 +37,7 @@ import audit as A
 
 HERE = pathlib.Path(__file__).resolve().parent
 OUT = HERE / "results_robustness.json"
-TAB = HERE.parent / "paper" / "tab_robustness.tex"
+TAB = HERE / "tab_robustness.tex"
 
 LEVEL = 0.05
 NS = (2_000, 10_000, 50_000)

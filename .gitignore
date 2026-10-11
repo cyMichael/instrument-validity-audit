@@ -8,6 +8,10 @@ venv/
 # macOS
 .DS_Store
 
+# Generated reproduction artifacts
+/code/figs/
+/code/tab_robustness.tex
+
 # LaTeX build output
 *.aux
 *.bbl
