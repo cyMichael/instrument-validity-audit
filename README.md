@@ -2,7 +2,7 @@
 
 **Yi Cui · Accepted at the Economics for Machine Learning (EconML) Workshop at NeurIPS 2026**
 
-[Paper (PDF)](paper/main.pdf) · [Live project page](https://cymichael.github.io/instrument-validity-audit/) · [HTML source](site/index.html) · [EconML workshop](https://econml26-workshop.github.io/)
+[Paper (PDF)](paper/main.pdf) · [Live project page](https://cymichael.github.io/instrument-validity-audit/) · [EconML workshop](https://econml26-workshop.github.io/)
 
 This repository contains the manuscript, simulation code and saved results, and a self-contained project page. It accompanies a paper about whether a randomized encouragement experiment can reveal users who deliberately act against the encouragement—and what the experiment can and cannot tell a platform about the resulting instrumental-variables estimate.
 
