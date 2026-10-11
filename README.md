@@ -15,10 +15,10 @@ The paper studies an observable population quantity, `V(P)`, built from differen
 For an outcome set `B`, write `m_dz(B) = Pr(Y ∈ B, D = d | Z = z)` and define `S₁ = m₁₀ − m₁₁` and `S₀ = m₀₁ − m₀₀`. The violation functional is
 
 $$
-V(P) = \max\{S_{1+}(\mathcal{Y}),\;S_{0+}(\mathcal{Y})\},
+V(P) = \max\left\lbrace S_{1+}(\mathcal{Y}), S_{0+}(\mathcal{Y}) \right\rbrace.
 $$
 
-where `S₊` is the positive part of a signed measure and `𝒴` is the outcome space. In words, the audit looks for outcome mass that cannot be explained by the complier distributions alone. It does not observe principal-stratum membership directly.
+Here, `S₊` is the positive part of a signed measure and `𝒴` is the outcome space. In words, the audit looks for outcome mass that cannot be explained by the complier distributions alone. It does not observe principal-stratum membership directly.
 
 The central qualification is that a small or zero audit value does not prove that no defiers exist. Defiers can be observationally masked when their potential-outcome measures are dominated by those of compliers. The audit also tests a joint set of assumptions: interpreting a detected violation as defiance requires exclusion to hold, and interpreting defiance as coordinated behavior requires additional behavioral assumptions.
 
