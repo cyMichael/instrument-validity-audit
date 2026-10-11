@@ -1,0 +1,434 @@
+{
+  "config": {
+    "reps": 400,
+    "n_gaussian_draws": 1000,
+    "ns": [
+      2000,
+      10000,
+      50000
+    ],
+    "level": 0.05,
+    "n_bins": 12,
+    "quick": false,
+    "lognormal_sigma": 0.75,
+    "t_df": 3
+  },
+  "worked_example": {
+    "shares": {
+      "a": 0.25,
+      "n": 0.35,
+      "c": 0.3,
+      "f": 0.1
+    },
+    "success_probs": {
+      "a1": 0.5,
+      "n0": 0.6,
+      "c1": 0.2,
+      "c0": 0.4,
+      "f1": 0.9,
+      "f0": 0.4
+    },
+    "cells": {
+      "m11": [
+        0.365,
+        0.185
+      ],
+      "m10": [
+        0.135,
+        0.21500000000000002
+      ],
+      "m00": [
+        0.31999999999999995,
+        0.32999999999999996
+      ],
+      "m01": [
+        0.19999999999999998,
+        0.25
+      ]
+    },
+    "S1": [
+      -0.22999999999999998,
+      0.030000000000000027
+    ],
+    "S0": [
+      -0.11999999999999997,
+      -0.07999999999999996
+    ],
+    "V": 0.030000000000000027,
+    "lp_min_defier_mass": 0.030000000000000027,
+    "lp_max_defier_mass": 0.35000000000000003,
+    "rr_u_terms": [
+      0.35000000000000003,
+      0.55,
+      0.43000000000000005,
+      0.4700000000000001,
+      0.32,
+      0.5800000000000001
+    ],
+    "rr_lower_bound_defiers": 0.030000000000000027,
+    "reduced_form": -0.10999999999999993,
+    "first_stage": 0.2,
+    "wald": -0.5499999999999996,
+    "tau_c": -0.2,
+    "tau_f": 0.5,
+    "wald_formula": -0.55,
+    "attaining_model_shares": {
+      "f": 0.030000000000000027,
+      "c": 0.23,
+      "a": 0.32,
+      "n": 0.41999999999999993
+    },
+    "attaining_shares_sum": 1.0,
+    "hidden_signflip": {
+      "cells": {
+        "m11": [
+          0.245,
+          0.305
+        ],
+        "m10": [
+          0.125,
+          0.225
+        ],
+        "m00": [
+          0.32000000000000006,
+          0.33000000000000007
+        ],
+        "m01": [
+          0.24000000000000005,
+          0.21000000000000005
+        ]
+      },
+      "V": 0.0,
+      "first_stage": 0.19999999999999998,
+      "wald": -0.20000000000000012,
+      "tau_c": 0.19999999999999996,
+      "tau_f": 1.0,
+      "lp_min_defier_mass": 0.0
+    }
+  },
+  "scenarios": [
+    {
+      "label": "sep $=1$ (baseline)",
+      "law": "Gaussian",
+      "kwargs": {
+        "family": "gaussian",
+        "sep": 1.0
+      },
+      "defier_mass": 0.1,
+      "V": 0.010985556345903195,
+      "V_partition": 0.010811593491941262,
+      "first_stage": 0.19999999999999998,
+      "wald": 1.0,
+      "complier_effect": 1.0,
+      "reject": {
+        "2000": 0.195,
+        "10000": 0.9475,
+        "50000": 1.0
+      }
+    },
+    {
+      "label": "exact mimicry",
+      "law": "Gaussian",
+      "kwargs": {
+        "family": "gaussian",
+        "sep": 0.0
+      },
+      "defier_mass": 0.1,
+      "V": 0.0,
+      "V_partition": 0.0,
+      "first_stage": 0.19999999999999998,
+      "wald": 1.0,
+      "complier_effect": 1.0,
+      "reject": {
+        "2000": 0.0025,
+        "10000": 0.0,
+        "50000": 0.0075
+      }
+    },
+    {
+      "label": "sep $=1$",
+      "law": "Student-$t_3$",
+      "kwargs": {
+        "family": "t3",
+        "sep": 1.0
+      },
+      "defier_mass": 0.1,
+      "V": 0.024078104221899894,
+      "V_partition": 0.010665271114212883,
+      "first_stage": 0.19999999999999998,
+      "wald": 1.0,
+      "complier_effect": 1.0,
+      "reject": {
+        "2000": 0.1925,
+        "10000": 0.8925,
+        "50000": 1.0
+      }
+    },
+    {
+      "label": "exact mimicry",
+      "law": "Student-$t_3$",
+      "kwargs": {
+        "family": "t3",
+        "sep": 0.0
+      },
+      "defier_mass": 0.1,
+      "V": 0.0,
+      "V_partition": 0.0,
+      "first_stage": 0.19999999999999998,
+      "wald": 1.0,
+      "complier_effect": 1.0,
+      "reject": {
+        "2000": 0.0025,
+        "10000": 0.0025,
+        "50000": 0.0
+      }
+    },
+    {
+      "label": "sep $=1$",
+      "law": "log-normal",
+      "kwargs": {
+        "family": "lognormal",
+        "sep": 1.0
+      },
+      "defier_mass": 0.1,
+      "V": 0.008527976581141286,
+      "V_partition": 0.0076589011049843225,
+      "first_stage": 0.19999999999999998,
+      "wald": 1.0,
+      "complier_effect": 1.0,
+      "reject": {
+        "2000": 0.0525,
+        "10000": 0.1675,
+        "50000": 0.8775
+      }
+    },
+    {
+      "label": "exact mimicry",
+      "law": "log-normal",
+      "kwargs": {
+        "family": "lognormal",
+        "sep": 0.0
+      },
+      "defier_mass": 0.1,
+      "V": 0.0,
+      "V_partition": 0.0,
+      "first_stage": 0.19999999999999998,
+      "wald": 1.0,
+      "complier_effect": 1.0,
+      "reject": {
+        "2000": 0.0025,
+        "10000": 0.0,
+        "50000": 0.0
+      }
+    },
+    {
+      "label": "App.~\\ref{app:example} example",
+      "law": "binary",
+      "kwargs": {
+        "family": "binary"
+      },
+      "defier_mass": 0.1,
+      "V": 0.030000000000000027,
+      "V_partition": 0.030000000000000027,
+      "first_stage": 0.19999999999999998,
+      "wald": -0.55,
+      "complier_effect": -0.2,
+      "reject": {
+        "2000": 0.3025,
+        "10000": 0.92,
+        "50000": 1.0
+      }
+    },
+    {
+      "label": "exact mimicry",
+      "law": "binary",
+      "kwargs": {
+        "family": "binary",
+        "p_f": [
+          0.4,
+          0.2
+        ]
+      },
+      "defier_mass": 0.1,
+      "V": 0.0,
+      "V_partition": 0.0,
+      "first_stage": 0.19999999999999998,
+      "wald": -0.19999999999999998,
+      "complier_effect": -0.2,
+      "reject": {
+        "2000": 0.0,
+        "10000": 0.0,
+        "50000": 0.0
+      }
+    },
+    {
+      "label": "equal means, $\\sigma_f=2$",
+      "law": "Gaussian",
+      "kwargs": {
+        "family": "gaussian",
+        "sep": 0.0,
+        "sigma_f": 2.0
+      },
+      "defier_mass": 0.1,
+      "V": 0.01879469868331541,
+      "V_partition": 0.01692475318178467,
+      "first_stage": 0.19999999999999998,
+      "wald": 1.0,
+      "complier_effect": 1.0,
+      "reject": {
+        "2000": 0.285,
+        "10000": 1.0,
+        "50000": 1.0
+      }
+    },
+    {
+      "label": "sep $=1$, $80\\%$ participation",
+      "law": "Gaussian",
+      "kwargs": {
+        "family": "gaussian",
+        "sep": 1.0,
+        "alpha": 0.08,
+        "passive": 0.02
+      },
+      "defier_mass": 0.08,
+      "V": 0.0027812194557765486,
+      "V_partition": 0.0015798940834669613,
+      "first_stage": 0.24,
+      "wald": 1.0,
+      "complier_effect": 1.0,
+      "reject": {
+        "2000": 0.01,
+        "10000": 0.1525,
+        "50000": 0.8325
+      }
+    },
+    {
+      "label": "sep $=1$, $50\\%$ participation",
+      "law": "Gaussian",
+      "kwargs": {
+        "family": "gaussian",
+        "sep": 1.0,
+        "alpha": 0.05,
+        "passive": 0.05
+      },
+      "defier_mass": 0.05,
+      "V": 0.0,
+      "V_partition": 0.0,
+      "first_stage": 0.3,
+      "wald": 1.0,
+      "complier_effect": 1.0,
+      "reject": {
+        "2000": 0.0,
+        "10000": 0.0,
+        "50000": 0.0
+      }
+    },
+    {
+      "label": "sep $=3$, $\\alpha=0.05$",
+      "law": "Gaussian",
+      "kwargs": {
+        "family": "gaussian",
+        "sep": 3.0,
+        "alpha": 0.05
+      },
+      "defier_mass": 0.05,
+      "V": 0.03543781759764912,
+      "V_partition": 0.0326997642575121,
+      "first_stage": 0.25,
+      "wald": 1.0,
+      "complier_effect": 1.0,
+      "reject": {
+        "2000": 1.0,
+        "10000": 1.0,
+        "50000": 1.0
+      }
+    },
+    {
+      "label": "sep $=3$, $\\alpha=0.05$, $+0.05$ idiosyncratic",
+      "law": "Gaussian",
+      "kwargs": {
+        "family": "gaussian",
+        "sep": 3.0,
+        "alpha": 0.05,
+        "idio": 0.05
+      },
+      "defier_mass": 0.1,
+      "V": 0.036405061764670524,
+      "V_partition": 0.034702722100702965,
+      "first_stage": 0.19999999999999998,
+      "wald": 1.0,
+      "complier_effect": 1.0,
+      "reject": {
+        "2000": 1.0,
+        "10000": 1.0,
+        "50000": 1.0
+      }
+    },
+    {
+      "label": "none; direct effect $0.1$",
+      "law": "Gaussian",
+      "kwargs": {
+        "family": "gaussian",
+        "alpha": 0.0,
+        "direct": 0.1
+      },
+      "defier_mass": 0.0,
+      "V": 9.685976871806337e-05,
+      "V_partition": 7.723310447612222e-05,
+      "first_stage": 0.3,
+      "wald": 1.3333333333333335,
+      "complier_effect": 1.0,
+      "reject": {
+        "2000": 0.0,
+        "10000": 0.0,
+        "50000": 0.01
+      }
+    },
+    {
+      "label": "none; direct effect $0.3$",
+      "law": "Gaussian",
+      "kwargs": {
+        "family": "gaussian",
+        "alpha": 0.0,
+        "direct": 0.3
+      },
+      "defier_mass": 0.0,
+      "V": 0.005240597730535903,
+      "V_partition": 0.0045019875324803236,
+      "first_stage": 0.3,
+      "wald": 2.0,
+      "complier_effect": 1.0,
+      "reject": {
+        "2000": 0.0225,
+        "10000": 0.1575,
+        "50000": 0.9275
+      }
+    }
+  ],
+  "partition_n10000": {
+    "separated": {
+      "6": 0.8475,
+      "12": 0.96,
+      "24": 0.885
+    },
+    "mimicry": {
+      "6": 0.0025,
+      "12": 0.0,
+      "24": 0.0
+    }
+  },
+  "boundary_null": {
+    "kwargs": {
+      "family": "gaussian",
+      "alpha": 0.1,
+      "pi_c": 0.1,
+      "sep": 0.0
+    },
+    "V": 0.0,
+    "reject": {
+      "500": 0.04,
+      "2000": 0.0625,
+      "10000": 0.0375
+    }
+  }
+}

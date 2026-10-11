@@ -1,0 +1,534 @@
+\documentclass{article}
+
+% Camera-ready build. The `final' option removes line numbers and the
+% "Submitted to" notice, prints the author block and shows the acknowledgments;
+% `dblblindworkshop' selects the workshop footer required by the EconML call.
+\usepackage[final,dblblindworkshop]{neurips_2026}
+\workshoptitle{Economics for Machine Learning}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\hypersetup{hidelinks}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{enumitem}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{assumption}{Assumption}
+\theoremstyle{remark}
+\newtheorem{finding}{Finding}
+
+\DeclareMathOperator*{\esssup}{ess\,sup}
+\newcommand{\Real}{\mathbb{R}}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Yspace}{\mathcal{Y}}
+\newcommand{\Bclass}{\mathcal{B}}
+\newcommand{\indep}{\perp\!\!\!\perp}
+\newcommand{\Wald}{\mathrm{Wald}}
+
+\title{Instrument Validity as an Audit for Algorithmic Collective Action}
+
+\author{%
+  Yi Cui\\
+  Department of Economics, University of North Carolina at Chapel Hill\\
+  \texttt{cy15307130001@gmail.com}
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Can a platform experiment detect coordinated users who invert a randomized
+encouragement? Such users are defiers in the local average treatment effect
+(LATE) framework and can distort the instrumental-variables (Wald) estimate
+used for a launch decision. Under random assignment and exclusion, the
+observable violation functional $V(P)$ sharply lower-bounds defier mass.
+We restate this known bound, give a self-contained proof, and examine its
+interpretation as an audit of collective action. The audit has no population
+violation exactly when defier potential-outcome measures are dominated by
+complier measures. With a positive first stage, exact mimicry is undetectable
+and leaves Wald equal to LATE. By contrast, a near-mimicry example with $29\%$ defiers
+has a complier effect of $1.0$ and Wald estimand $-0.45$, with $V(P)=0.0022$.
+Simulations illustrate sensitivity to outcome laws, participation, and
+exclusion. The audit detects violations of joint identifying assumptions;
+interpreting them as coordination requires additional behavioral restrictions.
+\end{abstract}
+
+\section{Introduction}
+
+Algorithmic collective action studies how a coordinated group of users can
+change what a platform learns by acting on its training data: relabelling or
+perturbing their own examples \citep{hardt2023aca}, reordering playlists
+\citep{baumann2024playlists}, or competing with other collectives
+\citep{karan2025two,battiloro2025multiple}.
+
+We study a different lever: the randomized experiment that decides a launch.
+Consider an encouragement design: a random subset of users
+is shown a prompt to try a feature ($Z$), adoption is voluntary ($D$), and the
+platform estimates an adoption effect on an engagement outcome ($Y$) using the
+instrumental-variables (IV) estimate, the Wald ratio of the prompt's effect on
+$Y$ to its effect on $D$. In a stylized example, a streaming service prompts half of
+its listeners to try an algorithmic playlist, measures listening time, and
+launches if the Wald estimate is positive. A fan community that wants the
+opposite decision \citep[cf.][]{baumann2024playlists} cannot choose who is
+prompted, but the prompt is visible, so members can condition on it: adopt when
+not prompted, refuse when prompted. In the local average treatment effect
+(LATE) framework \citep{imbens1994,angrist1996} they are \emph{defiers}, and
+monotonicity, which rules defiers out, fails by design.
+
+Under random assignment, exclusion, and no interference, coordinated
+always-taking or never-taking cancels from the Wald numerator and denominator.
+Coordinated compliance can change the complier population and its effect, but
+preserves the LATE interpretation when all users are monotone. Defiance breaks
+that interpretation by introducing a negatively weighted effect
+(Lemma~\ref{lem:influence}). This motivates studying defiance without claiming
+that it is the collective's optimal strategy.
+
+We ask whether the experiment can audit such coordination from its own data,
+without observing membership or communication. Random assignment, exclusion,
+and monotonicity imply inequalities between observed outcome sub-distributions
+\citep{balke1997,kitagawa2015,mourifie2017}, and the positive part of their
+violation, $V(P)$ in \eqref{eq:V}, is a sharp lower bound on the defier share.
+The bound is known. \citet{richardson2010binary} characterize every type
+distribution compatible with binary $(Z,D,Y)$ data;
+\citet{noack2021sensitivity} parameterizes monotonicity violations by the
+defier share and by complier--defier outcome heterogeneity, the two quantities
+we vary; \citet{kedagni2024robust} derive the identified set of the defier
+share and robust bounds for complier and defier effects.
+\citet{kowalski2019counting,christy2024counting} count defiers with
+design-based likelihoods, and \citet{dechaisemartin2017,dahl2023} recover
+effects under alternatives to monotonicity. We connect this identification
+literature to collective action through a stylized platform decision problem.
+Our contribution is the audit interpretation and an analysis of its limits;
+we do not propose a new identification bound or a strategic equilibrium.
+
+\paragraph{Contributions.}
+\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=1pt]
+\item Theorem~\ref{thm:audit} restates the sharp bound with a self-contained
+proof. Section~\ref{sec:audit} connects it to equation (16) of
+\citet{richardson2010binary}; Appendix~\ref{app:example} gives checkable examples.
+\item Corollary~\ref{prop:stealth} expresses nondetectability as measure
+domination. The known Wald decomposition (Lemma~\ref{lem:influence}) shows how
+effect heterogeneity can change the estimated sign despite a small violation.
+Finding~\ref{find:width} illustrates that the identified set widens along the
+simulated mimicry path but need not along a separated path.
+\item Simulations quantify power and robustness to the outcome law, the
+partition, the degree of coordination, and exclusion; the audit and the first
+stage detect different failures.
+\end{itemize}
+
+\section{Setup}\label{sec:setup}
+
+A platform randomizes an encouragement $Z\in\{0,1\}$, with $0<\Prob(Z=1)<1$,
+and observes take-up $D\in\{0,1\}$ and an outcome $Y$ in a Polish space $\Yspace$.
+We assume consistency, $D=D(Z)$ and $Y=Y(Z,D)$, and no interference between
+users. Principal strata are $T=(D(0),D(1))$: $a=(1,1)$ always-takers,
+$n=(0,0)$ never-takers, $c=(0,1)$ compliers, and $f=(1,0)$ defiers. Except in
+the exclusion-sensitivity simulations, we maintain
+\begin{assumption}[Random assignment]\label{a1} $Z\indep\big(Y(\cdot,\cdot),D(\cdot)\big)$. \end{assumption}
+\begin{assumption}[Exclusion]\label{a2} $Y(z,d)=Y(d)$ almost surely. \end{assumption}
+We do \emph{not} impose monotonicity, $\Prob(T=f)=0$, equivalently a
+threshold-crossing model of take-up \citep{vytlacil2002}.
+
+\paragraph{Terminology.} For treatment-effect statements, outcomes are real and
+integrable and $\Prob(T=c)>0$. The LATE is
+$\tau_c=\E[Y(1)-Y(0)\mid T=c]$. The Wald estimand is the reduced form
+$\E[Y\mid Z{=}1]-\E[Y\mid Z{=}0]$ divided by the nonzero first stage
+$\Prob(D{=}1\mid Z{=}1)-\Prob(D{=}1\mid Z{=}0)$; under
+Assumptions~\ref{a1}--\ref{a2} and monotonicity it equals $\tau_c$.
+A data-generating process (DGP) specifies the type shares and potential-outcome
+laws. Write $\mu_t^{(d)}(B)=\Prob(T=t,Y(d)\in B)$ for their sub-measures.
+
+\paragraph{The collective.} In the baseline recruitment model an active share
+$\alpha$ inverts the encouragement and every non-member is monotone, so
+$\Prob(T=f)=\alpha$. For positive stratum shares, \emph{exact mimicry} means
+$\mu_f^{(d)}/\alpha=\mu_c^{(d)}/\Prob(T=c)$ for $d=0,1$.
+In the simulations, $\mathrm{sep}$ shifts the untreated defier mean relative
+to compliers, in baseline standard deviations; the treated mean differs by
+$\mathrm{sep}+\tau_f-\tau_c$. Exact mimicry requires both
+$\mathrm{sep}=0$ and $\tau_f=\tau_c$ in the common-scale family.
+
+\paragraph{Observables.} Let $m_{dz}(B)=\Prob(Y\in B,D{=}d\mid Z{=}z)$ be the four observed sub-distributions. Under Assumptions~\ref{a1}--\ref{a2},
+\begin{align}
+m_{11}&=\mu_a^{(1)}+\mu_c^{(1)}, & m_{10}&=\mu_a^{(1)}+\mu_f^{(1)}, &
+m_{00}&=\mu_n^{(0)}+\mu_c^{(0)}, & m_{01}&=\mu_n^{(0)}+\mu_f^{(0)}.\notag
+\end{align}
+Always-takers and never-takers appear in both members of each pair and cancel in the differences
+\begin{equation}\label{eq:S}
+S_1:=m_{10}-m_{11}=\mu_f^{(1)}-\mu_c^{(1)},\qquad
+S_0:=m_{01}-m_{00}=\mu_f^{(0)}-\mu_c^{(0)},
+\end{equation}
+With $S=S_+-S_-$ the Jordan decomposition, define the \textbf{violation functional}
+\begin{equation}\label{eq:V}
+V(P):=\max\Big\{\,\sup_{B}S_1(B),\ \sup_{B}S_0(B)\Big\}=\max\big\{S_{1+}(\Yspace),\,S_{0+}(\Yspace)\big\}.
+\end{equation}
+The suprema range over Borel sets. $V(P)$ is the largest excess probability
+mass prohibited by monotonicity. Under monotonicity,
+$S_d=-\mu_c^{(d)}\le0$ for $d=0,1$, so $V(P)=0$; these are the
+testable LATE inequalities \citep{kitagawa2015,mourifie2017}.
+
+\section{The audit}\label{sec:audit}
+
+\begin{theorem}[Sharp lower bound on defier mass]\label{thm:audit}
+Let $P$ be the distribution of $(Z,D,Y)$ under some model satisfying Assumptions~\ref{a1}--\ref{a2}. Then
+\[
+\Prob(T=f)\ \ge\ V(P),
+\]
+and the bound is sharp: a model satisfying Assumptions~\ref{a1}--\ref{a2} induces $P$ with $\Prob(T=f)=V(P)$.
+\end{theorem}
+
+Theorem~\ref{thm:audit} is the lower endpoint of the identified set for the
+defier share in \citet[Prop.~1]{kedagni2024robust}, who credit
+\citet{richardson2010binary} for binary outcomes and
+\citet[Prop.~1, eq.~(15)]{noack2021sensitivity} for the general case. The lower bound is immediate
+from \eqref{eq:S}: $S_1(B)\le\mu_f^{(1)}(B)\le\Prob(T=f)$ for every $B$.
+Appendix~\ref{app:proof} gives a self-contained attainment proof by Jordan
+decomposition and a linear-program check over $30$ discretized models that
+agrees with $V(P)$ to within $8.3\times10^{-8}$.
+
+\paragraph{Binary outcomes.} For $\Yspace=\{0,1\}$, equation (16) of
+\citet{richardson2010binary} writes $\pi_{DE}=\Prob(D{=}1\mid Z{=}0)-\pi_{AT}$
+with $\pi_{AT}\le u_{\pi_{AT}}$. Subtracting the six terms of $u_{\pi_{AT}}$
+from $\Prob(D{=}1\mid Z{=}0)$ gives $0$, $S_1(\Yspace)$, $S_1(\{0\})$,
+$S_1(\{1\})$, $S_0(\{0\})$, and $S_0(\{1\})$, so their lower bound on
+$\pi_{DE}$ is $V(P)$ with $B$ over subsets of $\{0,1\}$, and
+Theorem~\ref{thm:audit} is the general-outcome form. Appendix~\ref{app:example}
+works an example with $\alpha=0.10$ and $V(P)=0.03$.
+
+\paragraph{Using the bound.} The population quantity $V(P)$ lower-bounds defier
+mass. A sample rejection flags incompatibility with the joint assumptions;
+neither rejection nor the plug-in estimate supplies a numerical confidence
+bound. A platform can investigate exclusion and report sensitivity to defiers
+before using Wald for a launch decision. Our identified sets are population
+calculations, not confidence regions.
+
+\section{Limits of the audit}\label{sec:limits}
+
+\begin{corollary}[When violations are undetectable]\label{prop:stealth}
+$V(P)=0$ if and only if $\mu_f^{(1)}\le\mu_c^{(1)}$ and $\mu_f^{(0)}\le\mu_c^{(0)}$ as measures. In particular, exact mimicry is undetectable by these inequalities whenever $\alpha\le\Prob(T=c)$.
+\end{corollary}
+
+This follows from \eqref{eq:V}: $S_{1+}(\Yspace)=0$ if and only if $S_1\le0$.
+The audit also does not distinguish coordinated from idiosyncratic defiance,
+and a rejection is evidence against the joint of Assumptions~\ref{a1}--\ref{a2}
+and monotonicity, so attributing it to defiers requires exclusion
+(Appendix~\ref{app:robust}). For $\alpha>0$, let
+$\tau_f=\E[Y(1)-Y(0)\mid T=f]$.
+
+\begin{lemma}[Influence; \citealp{angrist1996,noack2021sensitivity}]\label{lem:influence}
+If $0<\alpha=\Prob(T=f)<\Prob(T=c)$, the Wald estimand equals
+$\big(\Prob(T{=}c)\tau_c-\alpha\tau_f\big)/\big(\Prob(T{=}c)-\alpha\big)$, so
+$|\Wald-\tau_c|=\alpha\,|\tau_c-\tau_f|/\big(\Prob(T{=}c)-\alpha\big)$, which
+diverges as $\alpha\uparrow\Prob(T=c)$ with a fixed nonzero effect contrast.
+\end{lemma}
+
+The reduced form is $\Prob(T=c)\tau_c-\alpha\tau_f$ and the first stage
+$\Prob(T=c)-\alpha$. With a nonzero first stage, exact mimicry implies
+$\tau_f=\tau_c$ and no distortion.
+Small violations can nevertheless accompany substantial distortion: with
+$\alpha=0.29$, $\Prob(T=c)=0.30$, $\tau_f=1.05$,
+$\tau_c=1$, and the Gaussian outcomes of Section~\ref{sec:exp} with
+$\mathrm{sep}=0$, the platform
+reports $\Wald=-0.45$ while $V(P)=0.0022$.
+
+\begin{finding}[Information loss in the discretized simulation]\label{find:width}
+For midpoint-coded outcomes $Q(Y)$, the sharp identified-set width for
+$\tau_c^Q=\E[Q(Y(1))-Q(Y(0))\mid T=c]$ need not be monotone in $\alpha$.
+The linear-fractional program in Appendix~\ref{app:sim} gives an increase
+from $1.30$ to $6.30$ as $\alpha$ moves from $0$ to $0.29$ under exact mimicry,
+but a non-monotone path from $1.30$ to $1.31$ for $\mathrm{sep}=3$
+(Figure~\ref{fig:main}c).
+\end{finding}
+
+These sets allow all type shares and outcome laws compatible with the
+discretized observables; neither $\alpha$ nor mimicry is imposed on candidate
+models. The contrast between paths in Figure~\ref{fig:main}c is numerical,
+not a general ordering of detectability and information loss.
+
+\section{Experiments}\label{sec:exp}
+
+\paragraph{Design.} Outcomes are Gaussian with unit variance: compliers have
+$Y(0)\sim\mathcal N(0,1)$ and $Y(1)\sim\mathcal N(\tau_c,1)$ with $\tau_c=1$,
+collective members are shifted by $\mathrm{sep}$ with effect $\tau_f$, and
+$\Prob(T=c)=0.30$, $\Prob(T=a)=0.25$, $\Prob(T=f)=\alpha$
+(Appendix~\ref{app:sim}). Rejection rates use $400$ replications (Monte Carlo
+standard error at most $0.025$) of the studentized test of the $24$ cellwise
+inequalities on $12$ cells of $[-6,9]$ at level $0.05$ (Appendix~\ref{app:sim});
+the histogram plug-in estimates the partition-restricted bound, which is no
+larger than $V(P)$, with upward sampling bias.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figs/fig_main.pdf}
+\caption{(a) $V(P)$ against $\alpha$ at four separations. (b) Rejection rates
+at $\alpha=0.10$; mimicry lies inside the composite null, so rejection can be
+below $0.05$. (c) Width of the identified set for $\tau_c^Q$
+(Finding~\ref{find:width}).}
+\label{fig:main}
+\end{figure}
+
+\paragraph{Separation and mimicry.} Under $\mathrm{sep}=3$, $\alpha=0.01$ gives
+$V(P)=0.005$ and rejection rates $0.09$, $0.99$, and $1.00$ at
+$n=2{,}000$, $10{,}000$, and $50{,}000$. At $n=2{,}000$, the rate is $0.65$
+for $\alpha=0.02$ and $1.00$ for $\alpha=0.05$. At $\alpha=0.10$
+(Figure~\ref{fig:main}b), $\mathrm{sep}=3$ is detected with rate $0.96$ at
+$n=500$, and $\mathrm{sep}=1$ reaches $0.94$ at $n=10{,}000$.
+Exact mimicry with $\alpha=0.10<\Prob(T=c)=0.30$ is rejected at most $0.01$
+at each tested size; Appendix~\ref{app:robust} separately checks a boundary null.
+
+\paragraph{The first stage is complementary.} The sign-flipping configuration
+is rejected in $18\%$ of samples at $n=200{,}000$. Its first stage of $0.01$
+amplifies effect heterogeneity; assessing instrument strength also requires
+sampling precision. At $\alpha=0.05$ with $\tau_f=3$, Wald is $0.60$ against
+$\tau_c=1$ with $V(P)=0.018$ and a larger first stage of $0.25$.
+
+\paragraph{Robustness.} Appendix~\ref{app:robust} varies outcome laws, partitions,
+participation, idiosyncratic defiers, and exclusion. Rejection is at most
+$0.01$ under the strict-domination mimicry designs; power depends on the outcome law and
+partition. Passive compliers can mask active defiers. A direct effect of $0.3$
+standard deviations with no defiers is rejected in $93\%$ of samples at
+$n=50{,}000$, illustrating the need to assess exclusion.
+
+\section{Discussion}\label{sec:disc}
+
+The audit bounds defier mass; its coordination interpretation requires the
+recruitment model. Strategies are taken as given. Modeling a learning system
+and a collective--auditor equilibrium remains future work, requiring explicit
+objectives, timing, and costs. Appendices~\ref{app:limits}--\ref{app:frontier}
+discuss limitations, dual use, and simulated detectability--influence pairs.
+
+\clearpage
+% \begin{ack}
+% I thank the three anonymous EconML reviewers for comments that improved the
+% positioning and presentation of this paper, in particular for the pointers to
+% \citet{richardson2010binary} and \citet{noack2021sensitivity}. Code
+% reproducing every number and figure is distributed with the paper.
+% \end{ack}
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\appendix
+
+\section{Proof of Theorem~\ref{thm:audit}}\label{app:proof}
+
+Fix $P$ in the image of the model, i.e.\ generated by some $\mu^\star=(\mu_a^{(1)},\mu_n^{(0)},\mu_c^{(1)},\mu_c^{(0)},\mu_f^{(1)},\mu_f^{(0)})$ satisfying Assumptions~\ref{a1}--\ref{a2}.
+
+\paragraph{Lower bound.} By \eqref{eq:S}, for any Borel $B$, $S_1(B)=\mu_f^{(1)}(B)-\mu_c^{(1)}(B)\le\mu_f^{(1)}(B)\le\Prob(T=f)$, so $S_{1+}(\Yspace)\le\Prob(T=f)$. The same argument applies to $S_0$, hence $V(P)\le\Prob(T=f)=\alpha$ in the baseline recruitment model.
+
+\paragraph{Attainment.} Let $\varphi:=V(P)$ and recall $\delta=\Prob(T=f)-\Prob(T=c)=m_{10}(\Yspace)-m_{11}(\Yspace)=m_{01}(\Yspace)-m_{00}(\Yspace)$ is identified. We construct a model inducing $P$ with $\Prob(T=f)=\varphi$.
+
+For $d=0,1$, let $v_d=S_{d+}(\Yspace)$. The Jordan decomposition gives
+$S_{d-}(\Yspace)=v_d-\delta$ and $\varphi\ge v_d\ge\max\{0,\delta\}$.
+Define the nonnegative common parts
+\[
+A_1=m_{10}-S_{1+}=m_{11}-S_{1-},\qquad
+A_0=m_{01}-S_{0+}=m_{00}-S_{0-}.
+\]
+Nonnegativity follows from $(m_{10}-m_{11})_+\le m_{10}$ and its analogues.
+Choose sub-measures $0\le R_d\le A_d$ of mass $\varphi-v_d$ and set
+\[
+\mu_f^{(d)}=S_{d+}+R_d,\qquad
+\mu_c^{(d)}=S_{d-}+R_d,\qquad
+\mu_a^{(1)}=A_1-R_1,\qquad \mu_n^{(0)}=A_0-R_0.
+\]
+Such $R_1$ exists precisely when $\varphi\le m_{10}(\Yspace)$, and $R_0$
+exists when $\varphi\le m_{01}(\Yspace)$: take a suitable scalar multiple
+of $A_d$ (or zero when its mass is zero). Both inequalities hold because some
+valid generating model exists and its defier share lies between $\varphi$ and
+$\min\{m_{10}(\Yspace),m_{01}(\Yspace)\}$. This uses feasibility of $P$,
+not the conclusion to be proved.
+
+The constructed shares are
+\[
+(\Prob(T=f),\Prob(T=c),\Prob(T=a),\Prob(T=n))
+=(\varphi,\varphi-\delta,m_{10}(\Yspace)-\varphi,m_{01}(\Yspace)-\varphi).
+\]
+They are nonnegative and sum to
+$m_{10}(\Yspace)+m_{01}(\Yspace)-\delta=1$.
+Within each positive-mass complier or defier stratum, couple the normalized
+potential-outcome marginals arbitrarily, for example independently. Assign
+arbitrary unobserved $Y(0)$ for always-takers and $Y(1)$ for never-takers.
+Draw $Z$ independently with its observed assignment probability and impose
+consistency and exclusion. The resulting model induces $P$ and has defier
+share $\varphi=V(P)$. \hfill$\square$
+
+\paragraph{Numerical check.} Independently of the proof, we minimized $\Prob(T=f)$ by linear programming over a $14$-cell discretized feasible set (four equalities per outcome cell, equal stratum mass across $d$, total mass one, nonnegativity) and compared the minimum with the cellwise $V(P)$ across $30$ data-generating processes spanning $\alpha\in\{0.02,0.05,0.10,0.20,0.29\}$, separations $\{0,1,2.5\}$ and $\tau_f\in\{1,2\}$. The maximum absolute discrepancy was $8.3\times10^{-8}$, at linear-program tolerance.
+
+\section{A worked binary example}\label{app:example}
+
+Let $\Yspace=\{0,1\}$ with shares $\Prob(T=a)=0.25$, $\Prob(T=n)=0.35$, $\Prob(T=c)=0.30$, and $\alpha=\Prob(T=f)=0.10$. Write $p_t(d)=\Prob(Y(d){=}1\mid T{=}t)$ and take $p_a(1)=0.5$, $p_n(0)=0.6$, $p_c(0)=0.4$, $p_c(1)=0.2$, $p_f(0)=0.4$, and $p_f(1)=0.9$, so the collective mimics compliers under $d=0$ and is separated under $d=1$. The observed cells, listed as $(y{=}0,\,y{=}1)$, are
+\begin{gather*}
+m_{11}=(0.365,\,0.185),\qquad m_{10}=(0.135,\,0.215),\\
+m_{00}=(0.320,\,0.330),\qquad m_{01}=(0.200,\,0.250);
+\end{gather*}
+for instance $m_{11}(\{1\})=0.25\times0.5+0.30\times0.2=0.185$ and $m_{10}(\{1\})=0.25\times0.5+0.10\times0.9=0.215$. Hence
+\begin{gather*}
+S_1(\{1\})=0.03,\quad S_1(\{0\})=-0.23,\quad S_0(\{1\})=-0.08,\quad S_0(\{0\})=-0.12,\\
+S_1(\Yspace)=S_0(\Yspace)=-0.20,
+\end{gather*}
+and $V(P)=0.03$. At the population level, these observables require at least $3\%$ defiers although the generating share is $10\%$. The additional $7$ percentage points are not required to rationalize the data; this statement does not identify particular users. The attaining model of Theorem~\ref{thm:audit} has shares $(f,c,a,n)=(0.03,0.23,0.32,0.42)$, and the linear program of Appendix~\ref{app:proof} returns the same minimum. The Wald estimand is $(0.435-0.545)/0.20=-0.55$ while $\tau_c=-0.2$ and $\tau_f=0.5$, matching Lemma~\ref{lem:influence}: $(0.30\times(-0.2)-0.10\times0.5)/0.20=-0.55$. In the notation of \citet{richardson2010binary}, $p(x{=}1\mid z{=}0)=0.35$ and the six terms of $u_{\pi_{AT}}$ are $0.35$, $0.55$, $0.43$, $0.47$, $0.32$, and $0.58$, so $\pi_{DE}\ge0.35-0.32=0.03$, again $V(P)$. The script \texttt{robustness.py} reproduces every number.
+
+\paragraph{Domination without exact mimicry.}
+Keep the same shares and always-/never-taker laws, but set
+$(p_c(0),p_c(1))=(0.4,0.6)$ and $(p_f(0),p_f(1))=(0,1)$.
+Then $S_0=(-0.08,-0.12)$ and $S_1=(-0.12,-0.08)$, so $V(P)=0$ although
+$\tau_c=0.2$ and $\tau_f=1$. The first stage is $0.2$ and
+$\Wald=(0.30\times0.2-0.10\times1)/0.2=-0.2$.
+Thus measure domination can hide a sign reversal, whereas exact mimicry
+cannot. The binary example is also checked in \texttt{robustness.py}.
+
+\section{Robustness of the audit}\label{app:robust}
+
+\begin{table}[h]
+\centering
+\caption{Rejection rates of the moment-inequality test when the data depart from the Gaussian model of Section~\ref{sec:exp}. FS is the first stage. Unless stated, $\alpha=0.10$, $\Prob(T=c)=0.30$, $\Prob(T=a)=0.25$, $\tau_c=\tau_f=1$, and $12$ cells; $\Prob(T{=}f)$ is total defier mass. Participation rows recruit $0.10$ and split it into active defiers and passive compliers ($0.08/0.02$ and $0.05/0.05$). Rejection rates use $400$ replications (Monte Carlo standard error at most $0.025$) and seeds different from Figure~\ref{fig:main}.}
+\label{tab:robust}
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\resizebox{\textwidth}{!}{\input{tab_robustness.tex}}
+\end{table}
+
+Table~\ref{tab:robust} re-runs the test under departures from the Gaussian model. Continuous outcome laws are standardized to mean zero and unit variance before the location shifts of Appendix~\ref{app:sim} are applied, so $\mathrm{sep}$ is measured in standard deviations in every family. The Student-$t$ law has $3$ degrees of freedom; the log-normal law is $\exp(0.75W)$ for standard normal $W$, centred and scaled. Binary outcomes use the two cells $\{0\}$ and $\{1\}$ and the parameters of Appendix~\ref{app:example}; the mimicking binary collective has the compliers' success probabilities. Passive members comply but keep the collective's outcome law; idiosyncratic defiers defy but keep the compliers' law; the direct-effect rows add $0.1$ or $0.3$ to $Y$ when $Z=1$ and contain no defiers. Five patterns emerge.
+
+\begin{enumerate}[leftmargin=1.4em,itemsep=2pt,topsep=2pt]
+\item \emph{Mimicry.} Rejection is at most $0.01$ in all four tested families. The nondegenerate moments are slack in these designs, so a least-favourable critical value is conservative. These interior-null simulations alone do not establish size control at the boundary.
+\item \emph{Outcome laws.} At a one-standard-deviation shift, the $t_3$ collective has a larger $V(P)$ than the Gaussian one, but rejection at $n=10{,}000$ is $0.89$ versus $0.95$. The log-normal design gives $V(P)=0.009$ instead of $0.011$, with rejection $0.17$. These comparisons depend on the full outcome laws and fixed partition; they do not isolate causal effects of tail thickness or skewness.
+\item \emph{Coarsening.} For a fixed DGP, deterministic coarsening removes sets
+from the supremum in \eqref{eq:V}, so the population bound can only decrease.
+Our binary and continuous designs use different laws and are not a controlled
+coarsening comparison. Finer partitions need not improve finite-sample power.
+\item \emph{Participation and idiosyncratic defiers.} Passive members comply
+while retaining the collective's outcome law, adding complier mass that can
+mask active defiers. At $50\%$ participation this yields $V(P)=0$; at $80\%$
+it reduces $V(P)$ from $0.011$ to $0.003$ in the tested design. Idiosyncratic
+defiers with complier outcomes are undetectable in isolation when dominated,
+but can increase an existing violation: adding $0.05$ of them to a $0.05$
+separated collective moves $V(P)$ from $0.035$ to $0.036$. The bound does not
+separate the two sources of defiance. A variance difference alone
+($\sigma_f=2$, equal means) is also detected in this design.
+\item \emph{Exclusion.} With no defiers, a direct effect of $0.1$ standard deviations is rejected in at most $1\%$ of samples at the sizes considered, but one of $0.3$ is rejected in $93\%$ of samples at $n=50{,}000$. A rejection is evidence against the joint of Assumptions~\ref{a1}--\ref{a2} and monotonicity; attributing it to defiers requires exclusion.
+\end{enumerate}
+Partition choice affects power. At $n=10{,}000$ the separated Gaussian collective ($\mathrm{sep}=1$) is detected in $0.85$, $0.96$, and $0.89$ of samples with $6$, $12$, and $24$ cells, and the mimicking one in at most $0.01$.
+
+\paragraph{Boundary-null calibration.} The preceding mimicry scenarios have
+$\alpha=0.10<\Prob(T=c)=0.30$. In an additional Gaussian design with
+$\alpha=\Prob(T=c)=0.10$, $\mathrm{sep}=0$, and $\tau_f=\tau_c=1$, all
+population cell moments equal zero. Although this generating model contains
+defiers, its observable law also admits a monotone model; its first stage is
+zero, so Wald is undefined. With $400$ replications and $1000$ calibration
+draws, rejection is $0.0400$, $0.0625$, and $0.0375$ at $n=500$, $2{,}000$,
+and $10{,}000$. The corresponding Monte Carlo standard errors are approximately
+$0.010$, $0.012$, and $0.009$. These are diagnostics, not finite-sample guarantees.
+
+\paragraph{Population versus partition violations.} At separation one,
+the Student-$t_3$ law has $V(P)=0.02408$ but $V_Q=0.01067$ on the tested
+$12$ cells; the Gaussian values are $0.01099$ and $0.01081$.
+Thus a larger unrestricted population violation need not imply greater power
+on a fixed partition. The result files report both quantities.
+
+\section{Limitations in detail}\label{app:limits}
+
+\paragraph{Defiance versus coordination.} Theorem~\ref{thm:audit} bounds defier mass. Reading it as active coordination requires the recruitment model: active members invert the encouragement and non-members do not. Psychological reactance, misread instructions, or interface confusion also produce defiers; without ruling these out, $V(P)$ is not a coalition-size lower bound. With incomplete participation but no other defiers it remains a lower bound on active and nominal membership, and Appendix~\ref{app:robust} shows that passive members make it more conservative. Distinguishing coordinated from idiosyncratic defiance requires auxiliary timing or network information.
+
+\paragraph{Defiance versus exclusion failure.} The inequalities test the joint of Assumptions~\ref{a1}--\ref{a2} and monotonicity \citep{kitagawa2015}. In a randomized experiment Assumption~\ref{a1} holds by design, so a rejection points to defiers or to a direct effect of the encouragement; the direct-effect rows of Table~\ref{tab:robust} show that the two are not separated by the test.
+
+\paragraph{Model specificity of rejection rates.} Theorem~\ref{thm:audit}, Corollary~\ref{prop:stealth}, and Lemma~\ref{lem:influence} are population results for the general model. Rejection rates use a fixed partition and a least-favourable Gaussian approximation; Appendix~\ref{app:robust} varies the outcome law and the partition, but other laws, partitions, and moment-selection refinements will change the rates.
+
+\paragraph{No equilibrium analysis.} We compute detectability--influence pairs in one parametric family (Appendix~\ref{app:frontier}) but do not solve for equilibrium. A full treatment would specify the collective's objective (for instance, flipping the sign of the Wald estimate that drives the launch decision), the platform's audit policy and false-positive cost, and the timing of play. The detectability--information-loss relationship noted after Finding~\ref{find:width} is numerical and does not establish a general ordering of strategies.
+
+\section{Broader impact of the stealth characterization}\label{app:impact}
+
+Corollary~\ref{prop:stealth} characterizes when an identification-based audit has no population violation and is therefore dual-use. Publishing the condition helps auditors avoid interpreting non-rejection as evidence of no coordination. Reporting the first stage with its uncertainty helps assess amplification and instrument strength, but does not resolve defiance, as the larger-first-stage example shows. The result concerns aggregate detectability in a stylized model and provides no operational capability against a specific system.
+
+\section{Detectability and influence}\label{app:frontier}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.52\linewidth]{figs/fig_frontier.pdf}
+\caption{Pairs of $V(P)$ and $|\Wald-\tau_c|$ in the simulated family at $\mathrm{sep}=0$, sweeping $\alpha\in[0.01,0.29]$ and $\tau_f\in[1,3]$. The curve is a numerical envelope for this parameterization, not a general equilibrium frontier.}
+\label{fig:frontier}
+\end{figure}
+
+Figure~\ref{fig:frontier} displays population violation against Wald distortion. These are distinct from the identified-set widths in Figure~\ref{fig:main}c. The envelope summarizes a finite parameter grid; it is not a universal feasibility boundary or an equilibrium solution. Zero-distortion points are omitted from the logarithmic vertical axis.
+
+\section{Simulation details}\label{app:sim}
+
+\paragraph{Generating laws.}
+Assignments are independent Bernoulli$(1/2)$ draws and users are sampled
+independently. Compliers have $Y(0)\sim\mathcal N(0,1)$ and
+$Y(1)\sim\mathcal N(\tau_c,1)$, with $\tau_c=1$; defiers have
+$Y(0)\sim\mathcal N(\mathrm{sep},1)$ and
+$Y(1)\sim\mathcal N(\mathrm{sep}+\tau_f,1)$. Always-takers have
+$Y(1)\sim\mathcal N(0.5,1)$ and never-takers $Y(0)\sim\mathcal N(-0.5,1)$.
+Their other potential outcomes do not enter the observables. Along the share
+sweeps, $\Prob(T=c)=0.30$ and $\Prob(T=a)=0.25$ stay fixed, while
+$\Prob(T=n)=0.45-\alpha$. These are comparisons across DGPs, not a model of
+which existing users are recruited. Unless varied explicitly, $\tau_f=\tau_c$.
+
+\paragraph{Raw outcomes and discretization.}
+Population $V(P)$ and Wald values refer to the original outcome laws.
+For testing and identified sets, outcomes are winsorized to $[-6,9]$ and
+mapped to $K=12$ equal-width cells (the extreme cells absorb both tails).
+Let $Q(Y)$ be the cell midpoint and $P_Q$ the law of $(Z,D,Q(Y))$. Then
+\[
+V_Q:=V(P_Q)=\max_{d\in\{0,1\}}\sum_{k=1}^K[S_d(B_k)]_+\le V(P).
+\]
+Refining a partition weakly increases $V_Q$; the histogram plug-in is upward
+biased for $V_Q$ by convexity, conditional on nonempty arms. Its bias relative
+to the unrestricted $V(P)$ has no fixed sign. A test of these cells can miss
+violations within cells. The binary simulations use their two exact cells.
+
+\paragraph{Identified-set calculation.}
+The plotted effect is $\tau_c^Q=\E[Q(Y(1))-Q(Y(0))\mid T=c]$.
+Write $\theta_{tdk}=\Prob(T=t,Q(Y(d))=q_k)$. Feasible nonnegative arrays match
+all four observed sub-distributions cell by cell, have equal type mass across
+$d$, and total mass one. Minimize and maximize
+\[
+\frac{\sum_k q_k(\theta_{c1k}-\theta_{c0k})}{\sum_k\theta_{c1k}}
+\]
+over this set with positive complier mass. The Charnes--Cooper substitution
+$s=1/\sum_k\theta_{c1k}$, $x=s\theta$ makes the objective linear and replaces
+$A\theta=b$ by $Ax=bs$, with $\sum_k x_{c1k}=1$.
+These are sharp population bounds for the midpoint-coded outcome, up to
+solver tolerance; no Gaussian restriction, known defier share, or mimicry
+restriction is imposed on candidate models. The plotted designs have a
+positive first stage, which bounds the denominator away from zero.
+They are not sharp bounds for the original continuous-outcome LATE.
+
+\paragraph{Test and calibration.}
+Stack the $2K$ moments $g=(m_{10}-m_{11},m_{01}-m_{00})$ on the fixed cells.
+For each unit define $u_{id}=(\mathbf1\{D_i=d,Y_i\in B_k\})_{k=1}^K$
+and the signed cell vector $h_i=(u_{i1}^{\mathsf T},-u_{i0}^{\mathsf T})^{\mathsf T}$.
+Then $\hat g=\bar h_0-\bar h_1$, with
+plug-in covariance $\widehat\Sigma_0/n_0+\widehat\Sigma_1/n_1$.
+The statistic is $\max_j\hat g_j/\widehat{\mathrm{se}}_j$; its critical value
+is the $0.95$ quantile of the maximum of a zero-mean Gaussian with the plug-in
+correlation matrix. Zero-variance nonpositive moments are omitted; a positive
+zero-variance moment triggers rejection. Setting null means to zero is least
+favourable. For a fixed partition, independent sampling, nonvanishing arm
+shares, and positive population variances for retained moments, this provides
+pointwise asymptotic size control as sample size and the number of Gaussian draws grow.
+It is not an exact finite-sample or uniformly valid sparse-cell test.
+Runs use $400$ replications and $1000$ Gaussian draws per replication, with
+seeds fixed in the scripts. The full run uses only CPU computation and NumPy,
+SciPy, and Matplotlib.
+
+\newpage
+\input{checklist.tex}
+
+\end{document}

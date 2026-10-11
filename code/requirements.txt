@@ -1,0 +1,6 @@
+# Verified against the versions used for the full revision runs:
+#   Python 3.14.5, numpy 2.4.4, scipy 1.17.1, matplotlib 3.10.9
+# No GPU, no network access and no API keys are required.
+numpy>=1.24
+scipy>=1.10
+matplotlib>=3.6
